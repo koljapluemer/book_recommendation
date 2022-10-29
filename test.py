@@ -62,10 +62,11 @@ def create_reduced_dataset():
 
 # create_reduced_dataset()
 
-# load the books gzip file
-books = load_data(os.path.join(DIR, 'goodreads_books.json.gz'))
+
 #  create a dataframe with book_id and title
 def create_book_title():
+    # load the books gzip file
+    books = load_data(os.path.join(DIR, 'goodreads_books.json.gz'))
     df = pd.DataFrame(books)
     print('BOOKS TABLE:', df.head())
     # print column names
@@ -84,6 +85,7 @@ def create_pivot():
         df = pd.DataFrame(data)
         book_pivot = df.pivot(index='user_id', columns='book_id', values='rating')
         book_pivot.fillna(0, inplace=True)
+        print('========= I created a pivot table (of users and book ids [hopefully]). Here is the head.')
         print('PIVOT TABLE:', book_pivot.head())
  
         # create csr matrix
@@ -96,21 +98,19 @@ def create_pivot():
             book_title = json.load(f)
             book_title = pd.DataFrame(book_title)
             book_title.set_index('book_id', inplace=True)
-            print('BOOK TITLE / ID DATAFRAME', book_title.head())
+            print('========= I am opening a specific table matching ids and book titles, created earlier')
+            print('BOOK TITLE / ID DATAFRAME:', book_title.head())
+            print('number of rows:', book_title.shape[0])
 
-            # create a function that takes a book title as input and returns the 10 most similar books
+            # create a function that takes a book as input and returns the 10 most similar books
             def get_recommendations(book_id, n_recommendations):
-                # get the column index of book_id in the pivot table
-                book_idx = book_pivot.columns.get_loc(book_id)
                 
-                # get the distances and indices of the 10 most similar books
-                distances, suggestions = model.kneighbors(book_pivot.iloc[book_idx, :].values.reshape(1, -1))
-                return suggestions
                 
             # make an array from the column names
             book_ids = book_pivot.columns.values
             # create an array from the 'book_id' column of book_title
             book_ids_title = book_title.index.values
+            print('========= We are comparing the first 10 col names from the pivot table with the first 10 entries from the title/id reference dataframe. They *should* be similarly formatted ids')
             print('sanity check for the lists', book_ids[:10], book_ids_title[:10])
             # create a list of book_ids that are in both df and book_title
             book_ids_both = list(set(book_ids) & set(book_ids_title))
@@ -122,6 +122,20 @@ def create_pivot():
             # print the 10 most similar books to the book title
             similar_ids = get_recommendations(book_id, 10)
             print('SIMILAR IDEAS: ', similar_ids)
+
+            print('========= now we try to get book titles')
+            # find book_id in book_title df and print the corresponding name
+            title_of_reference_book = book_title.loc[book_id, 'title']
+            print('TITLE OF REFERENCE BOOK: ', title_of_reference_book)
+            print('..............and we recommend.........')
+            # now, loop the similar_ids and also find their titles
+            for id in similar_ids:
+                print("checking id", id)
+                try:
+                    title_of_recommendation = book_title.loc[id, 'title']
+                    print("TITLE", title_of_recommendation)
+                except:
+                    print("could not find book")
             
 create_pivot()
 
