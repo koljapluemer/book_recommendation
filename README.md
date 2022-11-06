@@ -38,3 +38,9 @@ book_ids = book_ids.tolist()
 ```
 
 Ok. `stealing/denise2.py` now has a working matrix factorization going on. Next I need to think about how to get this into a working/useful 'recommend me books thing'. Need a break.
+
+## Reports
+
+### 22-11-06
+
+yeah so we get a matrix with my stuff included (just downloaded from goodreads) but it is to large to analyze. guess i have to learn some big data. not today.

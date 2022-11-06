@@ -78,10 +78,44 @@ def test():
     print('========= I created a pivot table (of users and book ids [hopefully]). Here is the head.')
     print('PIVOT TABLE:', book_pivot.head())
 
+    # ADD MY OWN STUFF
+    # open data/my_books.csv
+    # read it into a dataframe
+    with open('data/my_books.csv') as f:
+        my_books = pd.read_csv(f)
+
+    # create a dictionary from 'Book Id' and 'My Rating' columns
+    # have the id be a string
+    my_books_dict = my_books.set_index('Book Id')['My Rating'].to_dict()
+    # convert keys to strings
+    my_books_dict_full = {str(k):v for k,v in my_books_dict.items()} 
+    # if book_id is not in the columns list of book_pivot, remove it from the dictionary
+    my_books_dict = {k:v for k,v in my_books_dict_full.items() if k in book_pivot.columns}
+    
+    # print list with all my book ids
+    id_list = list(my_books_dict.keys())
+    print('========= Here are my book ids:')
+    print(id_list)
+    print('CREATE A DICTIONARY FROM MY BOOKS (first 5):', list(my_books_dict.items())[:5])
+    print('number of items in my_books_dict:', len(my_books_dict))
+
+    print('number of columns in book_pivot:', len(book_pivot.columns))
+    # add my books to the pivot table
+    # ignore columns that are not already in the pivot table
+            
+    book_pivot = pd.concat([book_pivot, pd.DataFrame.from_records([my_books_dict])])
+    print('number of columns in book_pivot:', len(book_pivot.columns))
+
+    # fill in Nan values with 0
+    book_pivot.fillna(0, inplace=True)
+
+    # print the row for my user
+    print('========= Here is the row for my user:')
+    print(book_pivot.tail())
+
 
     # create a nested array from the rows of the pivot table
     R = book_pivot.values
-
 
     # R = [
     #     [5,3,0,1],
@@ -107,10 +141,12 @@ def test():
     
     print("Starting Matrix Factor")
     nP, nQ = matrix_factorization(R, P, Q, K)
-
     nR = numpy.dot(nP, nQ.T)
     return nR
 
 
 matrix = test()
+# save matrix to file
+with open('data/matrix.json', 'w') as f:
+    json.dump(matrix.tolist(), f)
 print(matrix)

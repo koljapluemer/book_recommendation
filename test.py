@@ -47,20 +47,21 @@ def create_reduced_dataset():
     with open('reviews.json') as f:
         data = json.load(f)
 
+
         # extract a smaller dataframe only with users who have rated over 50 books
         df = pd.DataFrame(data)
         # print row count
         print('unfiltered reviews:', df.shape[0])
-        df = df.groupby('user_id').filter(lambda x: len(x) > 50)
+        df = df.groupby('user_id').filter(lambda x: len(x) > 10)
         print('filtered reviews (users):', df.shape[0])
         # extract a smaller df with only book_ids that have more than 50 reviews
-        df = df.groupby('book_id').filter(lambda x: len(x) > 50)
+        df = df.groupby('book_id').filter(lambda x: len(x) > 10)
         print('filtered reviews (books):', df.shape[0])
 
         # save the filtered dataset as a json file
         df.to_json('reviews_filtered.json', orient='records')
 
-# create_reduced_dataset()
+create_reduced_dataset()
 
 
 #  create a dataframe with book_id and title
@@ -78,7 +79,7 @@ def create_book_title():
 
 def create_pivot():
     # load reviews_filtered.json with json
-    with open('reviews_filtered.json') as f:
+    with open('reviews.json') as f:
         data = json.load(f)
 
         # create a pivot table with book_id as columns and user_id as rows
@@ -103,7 +104,8 @@ def create_pivot():
             print('number of rows:', book_title.shape[0])
 
             # create a function that takes a book as input and returns the 10 most similar books
-            def get_recommendations(book_id, n_recommendations):
+            # def get_recommendations(book_id, n_recommendations):
+            
                 
                 
             # make an array from the column names
@@ -137,5 +139,5 @@ def create_pivot():
                 except:
                     print("could not find book")
             
-create_pivot()
+# create_pivot()
 
